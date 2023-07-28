@@ -1,0 +1,78 @@
+Here is the collection of codes I have made for working with the LPM data. This txt document should give you some information about how to use them.
+-------
+-note- : there are different versions of some codes, e.g. main.m and main_2.m.
+The lower numbers are old versions of code that I don't use anymore but I have kept to have if I ever needed to go back;
+the older versions are all in the Old Code folder. There are other codes that I haven't used in a long time in that folder and that probably won't
+work with the newer code. You can pretty much ignore all but the newest version. I won't discuss old versions here.
+
+-note- : I like to make and use functions. Most of what I have done you do by calling the function in a seperate file.
+
+-note- : There is various commented out code throughout a lot of these. You can ignore them, they are relics from when I was working on this stuff
+and I don't really rememeber what they are for anymore.
+
+-note- : I hope I have done decent amounts of commenting to explain what I am doing, but if you are ever confused don't hesitate to reach out, I
+will be happy to help.
+
+------
+
+load_day_lpm_data3.m
+-Function that you give a datetime (single or array) and it tries to load all the data for that day into a table. The result is a table with a row
+for each day and a column for date then each instrument, with each instrument-row value being the csv array for that instrument/day.
+-If there is no data for a given day or instrument it will just put NaN in instead (or an array of NaN, not sure). Sometimes LPM data spans more than one day in a csv file.
+In that case right now the function just sees the first day of data in that file.
+-The function depends on the data being in a folder structure: in the folder with the function file, there should be a folder called
+LPM_Data, containing a folder called whatever the year of the data you are trying to get is, which contains the csv files for that year. For instance trying to get data 
+from 6/7/20 would have the path LPM_Data/2020/*.csv. This should be easy to change if you want.
+-Data needs to be in .csv format. If it is in .txt, use lpm_data_processing/lpm_processing.m to convert them to .csv format.
+-Right now the date column gives an array of datetimes for each minute of the particular day, corresponding to each element in the first dimesion of the produced table.
+I don't really remember why I did it this way.
+-The data for each csv has three dimensions. The first, typically 1439 long, is for the minute of the day for that slice of data. The second is the diameter and the third
+is the speed bin of drops. The value in each element is the number of drops for that time period/diameter bin/speed bin.
+-There may be cases where a day's data starts not at midnight or there are multiple files for the same day/instrument. This is usually because the LPM
+had an error of some kind an had to restart at some point in the day. This code should handle that and load the data together at the right times of day,
+leaving data that is missing as NaN.
+
+get_LPM_summary3.m
+-Function that you give the data you get from load_day_lpm_data3 and finds a bunch of stats for each day and instrument and returns it in a struct.
+-Pretty self explanatory, just run it to see the stuff it gives you. Don't take it as gospel that everything is calculated correctly, although I am reasonably
+confident.
+-You can see a lot of the numbers like diameter bins and speed bins here.
+
+main_2.m
+-I was using this to create a bunch of plots to compare between instruments. That might not be very useful to you, but you can see an example
+of how to call the above to functions here.
+
+get_wind_summary.m
+-This function gives a table of the texas tech tower wind data for a given date and time resolution.
+-Wind data is given with higher resolution that 1/minute, so the num_minutes is the number of minutes over which to average the wind data. Typically I just used 1 minute.
+-I haven't used this code in a while, so I don't remember if it has any quirks.
+
+get_MRR_sim.m
+-This function takes lpm data and converts it to what the MRR would see if looking at the same data.
+-I would need to take a longer look at this one to give a good write up; if you need more info, ask me and I can come back to it no problem.
+
+termpoly.m
+-Dr. Larsen's code that calculates the terminal fall speed for a given drop diameter.
+
+get_day_lpm (DEPRECATED)
+-function that is meant to automatically get a summary of data for a given day of year and year by calling get_LPM_summary().
+Is not used anymore; use load_day_lpm_data3 then get_LPM_summary3 instead. It should still work though.
+
+lpm_rain_days
+-script which identifies days that had enough lots of drops detected across many of the instruments.
+-Uses count_minimum and min_instrument_count to specify parameters for how many instruments you want to have recorded a minimum number of drops each for a day
+to be considered interesting. Puts the dates in a variable called results along with the number of drops detected in each instrument for each day.
+-When you run it it prompts a file select window. Select ALL the files you want to consider, meaning all eight corresponding to each instrument for each day
+if they exist. Usually I just select all the files in a new set of data and do all the days at once.
+-This script takes a while to run if you want to process a lot of files at once (~20 minutes for a year of data).
+
+lpm_data_processing/lpm_processing.m
+-script that converts all the raw LPM .txt files to .csv files that are much easier to use.
+-Takes .txt files in the unprocessed_lpm_data folder, creates .csv files for them and places the .csv files in the processed_lpm_data folder, then moves the .txt files into
+a folder called done within unprocessed_lpm_data.
+
+
+
+
+
+
